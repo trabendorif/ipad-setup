@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr Phone 67 - Gestion des Réparations</title>
+    <meta name="description"
+        content="Application de gestion des réparations smartphones, PC et consoles - Mr Phone 67 Strasbourg">
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3c72">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mr Phone 67">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3c72;
+            --primary-light: #2a5298;
+            --accent: #667eea;
+            --accent2: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --dark: #1a1a2e;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #16213e 50%, var(--primary) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* NAV */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .nav-logo h1 {
+            font-size: 1.4em;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .nav-btn.secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .nav-btn.secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .nav-btn.accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* STATS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform .3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card h3 {
+            color: var(--gray-500);
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            font-size: 2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* VIEWS */
+        .view {
+            display: none;
+            animation: fadeIn .4s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* DATABASE VIEW */
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .search-section h2 {
+            color: var(--primary);
+            margin-bottom: 16px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            transition: all .3s;
+            background: var(--gray-50);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: #fff;
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .repairs-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .repair-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+            transition: all .3s;
+        }
+
+        .repair-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .repair-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .repair-card-header h3 {
+            color: var(--gray-800);
+            font-size: 1.1em;
+        }
+
+        .repair-card-header .repair-num {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        .repair-card-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .repair-card-info p {
+            color: var(--gray-600);
+            font-size: 0.85em;
+        }
+
+        .repair-card-info strong {
+            color: var(--gray-800);
+        }
+
+        .repair-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .repair-actions .btn {
+            padding: 6px 14px;
+            font-size: 0.8em;
+        }
+
+        /* STATUS BADGES */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-done {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-paid {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* FORM */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .step-indicator {
+            display: flex;
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .step-item {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--gray-400);
+            position: relative;
+            transition: all .3s;
+            cursor: pointer;
+        }
+
+        .step-item.active {
+            color: var(--primary);
+            background: #fff;
+        }
+
+        .step-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+
+        .step-item.completed {
+            color: var(--success);
+        }
+
+        .step-item .step-num {
+            display: inline-flex;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.85em;
+            margin-right: 8px;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            transition: all .3s;
+        }
+
+        .step-item.active .step-num {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+        }
+
+        .step-item.completed .step-num {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .form-step {
+            display: none;
+            padding: 30px;
+            animation: fadeIn .3s ease;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-step h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--gray-700);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            transition: all .3s;
+            background: var(--gray-50);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: #fff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            border-top: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-lg {
+            padding: 14px 32px;
+            font-size: 1em;
+        }
+
+        /* SIGNATURE */
+        .signature-pad {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius);
+            cursor: crosshair;
+            background: var(--gray-50);
+            touch-action: none;
+            display: block;
+            width: 100%;
+        }
+
+        .signature-controls {
+            margin-top: 8px;
+        }
+
+        /* CAMERA */
+        .camera-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            margin-top: 8px;
+        }
+
+        .camera-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .captured-img {
+            margin-top: 10px;
+            max-width: 100%;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            display: none;
+        }
+
+        /* SUMMARY */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            background: var(--gray-50);
+            padding: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .summary-box h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 6px;
+        }
+
+        .summary-box p {
+            color: var(--gray-600);
+            font-size: 0.88em;
+            margin: 4px 0;
+            line-height: 1.5;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: var(--radius);
+            max-width: 900px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: var(--gray-400);
+            transition: color .3s;
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: var(--gray-800);
+        }
+
+        .modal-actions {
+            margin-top: 24px;
+            text-align: center;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* PAYMENT MODAL */
+        .payment-options {
+            display: flex;
+            gap: 16px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .payment-option {
+            flex: 1;
+            max-width: 200px;
+            padding: 24px;
+            border: 3px solid var(--gray-200);
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            transition: all .3s;
+        }
+
+        .payment-option:hover {
+            border-color: var(--accent);
+            background: var(--gray-50);
+        }
+
+        .payment-option.selected {
+            border-color: var(--success);
+            background: #d1fae5;
+        }
+
+        .payment-option .icon {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+
+        .payment-option .label {
+            font-weight: 700;
+            color: var(--gray-700);
+        }
+
+        /* DOCUMENT PRINT STYLES */
+        .doc-page {
+            padding: 20px;
+            background: #fff;
+            font-size: 0.82em;
+        }
+
+        .doc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
+
+        .doc-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .doc-logo-section img {
+            width: 55px;
+            height: 55px;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+
+        .doc-company h2 {
+            color: var(--primary);
+            font-size: 1.2em;
+            margin-bottom: 2px;
+        }
+
+        .doc-company p {
+            color: #666;
+            font-size: 0.75em;
+            margin: 1px 0;
+            line-height: 1.3;
+        }
+
+        .doc-company .phone {
+            color: var(--primary) !important;
+            font-weight: bold !important;
+        }
+
+        .doc-title {
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .doc-title h1 {
+            color: var(--primary);
+            font-size: 1.5em;
+            margin-bottom: 2px;
+            letter-spacing: 2px;
+        }
+
+        .doc-title .doc-num {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .doc-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .doc-info-box {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .doc-info-box h3 {
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 3px;
+        }
+
+        .doc-info-box p {
+            color: #333;
+            margin: 3px 0;
+            font-size: 0.78em;
+            line-height: 1.4;
+        }
+
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.78em;
+        }
+
+        .doc-table th,
+        .doc-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+
+        .doc-table th {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .doc-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .doc-cost {
+            text-align: right;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .doc-cost p {
+            margin: 3px 0;
+            font-size: 0.82em;
+        }
+
+        .doc-cost .total {
+            color: var(--primary);
+            font-size: 1.3em;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .doc-signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .doc-sig-box {
+            text-align: center;
+            padding: 8px;
+        }
+
+        .doc-sig-box h4 {
+            color: #333;
+            margin-bottom: 6px;
+            font-size: 0.82em;
+        }
+
+        .doc-sig-box img {
+            max-width: 140px;
+            max-height: 55px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 2px;
+            background: #fff;
+        }
+
+        .doc-sig-line {
+            border-top: 2px solid #333;
+            margin-top: 40px;
+            padding-top: 4px;
+            font-size: 0.72em;
+        }
+
+        .doc-footer {
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 0.68em;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        /* NO RESULTS */
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            color: var(--gray-400);
+        }
+
+        .no-results .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:1024px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .repair-card-info {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid,
+            .doc-info-grid,
+            .doc-signatures {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* PRINT */
+        @media print {
+            @page {
+                size: A4;
+                margin: 12mm;
+            }
+
+            body {
+                background: #fff !important;
+                padding: 0;
+                margin: 0;
+            }
+
+            .navbar,
+            .stats,
+            .view,
+            .modal-close,
+            .modal-actions,
+            .no-print {
+                display: none !important;
+            }
+
+            .modal {
+                display: block !important;
+                position: relative;
+                background: #fff;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .modal-content {
+                box-shadow: none;
+                max-width: 100%;
+                width: 100%;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-height: none;
+                border-radius: 0;
+                overflow: visible;
+            }
+
+            .doc-page {
+                padding: 0 !important;
+                page-break-inside: avoid;
+                font-size: 10pt !important;
+            }
+
+            .doc-header {
+                display: flex !important;
+                border-bottom: 3px solid #1e3c72 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .doc-table th {
+                background: #1e3c72 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .doc-info-box {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .doc-cost {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .badge {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <img src="mr-phone-67-logo.png" alt="Mr Phone 67" onerror="this.style.display='none'">
+            <h1>Mr Phone 67</h1>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn primary" onclick="showView('form')">➕ Nouvelle Prise en Charge</button>
+            <button class="nav-btn accent" onclick="showView('database')">📁 Base de Données</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- STATS -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Réparations</h3>
+                <p id="statTotal">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>En Cours</h3>
+                <p id="statEnCours">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Terminées</h3>
+                <p id="statTerminees">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Chiffre d'Affaires</h3>
+                <p id="statCA">0€</p>
+            </div>
+        </div>
+
+        <!-- DATABASE VIEW -->
+        <div id="databaseView" class="view active">
+            <div class="search-section">
+                <h2>🔍 Recherche</h2>
+                <div class="search-grid">
+                    <input type="text" class="search-input" id="searchName"
+                        placeholder="🔎 Rechercher par nom du client..." oninput="filterRepairs()">
+                    <input type="text" class="search-input" id="searchModel" placeholder="📱 Rechercher par modèle..."
+                        oninput="filterRepairs()">
+                    <input type="text" class="search-input" id="searchNumber"
+                        placeholder="🔢 Rechercher par N° de prise en charge..." oninput="filterRepairs()">
+                </div>
+            </div>
+            <div class="repairs-grid" id="repairsList"></div>
+        </div>
+
+        <!-- FORM VIEW (3 steps) -->
+        <div id="formView" class="view">
+            <div class="form-container">
+                <div class="step-indicator">
+                    <div class="step-item active" data-step="1" onclick="goToStep(1)"><span class="step-num">1</span>
+                        Client</div>
+                    <div class="step-item" data-step="2" onclick="goToStep(2)"><span class="step-num">2</span> Appareil
+                    </div>
+                    <div class="step-item" data-step="3" onclick="goToStep(3)"><span class="step-num">3</span>
+                        Validation</div>
+                </div>
+                <form id="repairForm">
+                    <!-- STEP 1: CLIENT -->
+                    <div class="form-step active" data-step="1">
+                        <h2>👤 Informations Client</h2>
+                        <div class="form-row">
+                            <div class="form-group"><label>Nom du Client *</label><input type="text" id="clientName"
+                                    required></div>
+                            <div class="form-group"><label>Téléphone *</label><input type="tel" id="clientPhone"
+                                    required></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Email</label><input type="email" id="clientEmail"></div>
+                            <div class="form-group"><label>Adresse</label><input type="text" id="clientAddress"></div>
+                        </div>
+                    </div>
+                    <!-- STEP 2: DEVICE -->
+                    <div class="form-step" data-step="2">
+                        <h2>📱 Informations Appareil</h2>
+                        <div class="form-row">
+                            <div class="form-group"><label>Type d'Appareil *</label>
+                                <select id="deviceType" required>
+                                    <option value="">Sélectionner...</option>
+                                    <option>Smartphone</option>
+                                    <option>PC Portable</option>
+                                    <option>PC Bureau</option>
+                                    <option>Console PlayStation</option>
+                                    <option>Console Xbox</option>
+                                    <option>Console Nintendo</option>
+                                    <option>Tablette</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Modèle *</label><input type="text" id="deviceModel" required
+                                    placeholder="Ex: iPhone 15, PS5, Dell XPS"></div>
+                        </div>
+                        <div class="form-group"><label>N° de Série / IMEI *</label>
+                            <input type="text" id="deviceSerial" required placeholder="Entrez ou capturez le numéro">
+                            <input type="file" id="serialCapture" accept="image/*" capture="environment">
+                            <button type="button" class="camera-btn"
+                                onclick="document.getElementById('serialCapture').click()">📸 Capturer
+                                IMEI/Série</button>
+                            <img id="serialImage" class="captured-img" alt="IMEI capturé">
+                        </div>
+                        <div class="form-group"><label>Description du Problème *</label><textarea id="problemDesc"
+                                required placeholder="Décrivez le problème en détail..."></textarea></div>
+                    </div>
+                    <!-- STEP 3: VALIDATION -->
+                    <div class="form-step" data-step="3">
+                        <h2>✅ Récapitulatif & Signature</h2>
+                        <div class="summary-grid" id="summaryContent"></div>
+                        <div class="form-group"><label>Coût Estimé (€) *</label><input type="number" id="estimatedCost"
+                                required min="0" step="0.01"></div>
+                        <div class="form-group"><label>Signature du Client *</label>
+                            <canvas id="signaturePad" class="signature-pad" width="600" height="180"></canvas>
+                            <div class="signature-controls"><button type="button" class="btn btn-secondary"
+                                    onclick="clearSignature()">🗑️ Effacer la signature</button></div>
+                        </div>
+                    </div>
+                    <div class="form-nav">
+                        <button type="button" class="btn btn-secondary btn-lg" id="prevBtn" onclick="prevStep()"
+                            style="display:none">⬅️ Précédent</button>
+                        <div></div>
+                        <button type="button" class="btn btn-accent btn-lg" id="nextBtn" onclick="nextStep()">Suivant
+                            ➡️</button>
+                        <button type="submit" class="btn btn-success btn-lg" id="submitBtn" style="display:none">✅ Créer
+                            la Prise en Charge</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENT MODAL -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="documentContent"></div>
+            <div class="modal-actions no-print">
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimer</button>
+                <button class="btn btn-info" id="emailBtn" onclick="sendEmail()">📧 Envoyer par Email</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" style="max-width:500px">
+            <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            <h2 style="text-align:center;color:var(--primary);margin-bottom:8px">💰 Mode de Paiement</h2>
+            <p style="text-align:center;color:var(--gray-500);margin-bottom:16px" id="paymentAmount"></p>
+            <div class="payment-options">
+                <div class="payment-option" data-method="CB" onclick="selectPayment('CB')">
+                    <div class="icon">💳</div>
+                    <div class="label">Carte Bancaire</div>
+                </div>
+                <div class="payment-option" data-method="Espèces" onclick="selectPayment('Espèces')">
+                    <div class="icon">💵</div>
+                    <div class="label">Espèces</div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:16px">
+                <button class="btn btn-success btn-lg" id="confirmPayBtn" onclick="confirmPayment()" disabled>Confirmer
+                    le Paiement</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATABASE ============
+        class RepairDB {
+            constructor() { this.repairs = JSON.parse(localStorage.getItem('mrphone67_db') || '[]'); }
+            save() { localStorage.setItem('mrphone67_db', JSON.stringify(this.repairs)); }
+            add(r) { r.id = Date.now(); r.createdAt = new Date().toISOString(); r.status = 'En Attente'; r.repairNumber = 'PEC-' + new Date().getFullYear() + '-' + String(r.id).slice(-6); this.repairs.unshift(r); this.save(); return r; }
+            update(id, data) { const i = this.repairs.findIndex(r => r.id === id); if (i !== -1) { this.repairs[i] = { ...this.repairs[i], ...data }; this.save(); } }
+            delete(id) { this.repairs = this.repairs.filter(r => r.id !== id); this.save(); }
+            get(id) { return this.repairs.find(r => r.id === id); }
+            getAll() { return this.repairs; }
+        }
+        const db = new RepairDB();
+
+        // ============ VIEWS ============
+        let currentView = 'database';
+        function showView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            if (view === 'form') { document.getElementById('formView').classList.add('active'); currentView = 'form'; resetForm(); }
+            else { document.getElementById('databaseView').classList.add('active'); currentView = 'database'; displayRepairs(); }
+        }
+
+        // ============ FORM STEPS ============
+        let currentStep = 1;
+        let editingId = null;
+
+        function goToStep(step) {
+            if (step > currentStep && !validateCurrentStep()) return;
+            currentStep = step;
+            document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.step-item').forEach(s => { s.classList.remove('active', 'completed'); if (parseInt(s.dataset.step) < step) s.classList.add('completed'); if (parseInt(s.dataset.step) === step) s.classList.add('active'); });
+            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+            document.getElementById('prevBtn').style.display = step > 1 ? '' : 'none';
+            document.getElementById('nextBtn').style.display = step < 3 ? '' : 'none';
+            document.getElementById('submitBtn').style.display = step === 3 ? '' : 'none';
+            if (step === 3) updateSummary();
+        }
+        function nextStep() { if (validateCurrentStep()) goToStep(currentStep + 1); }
+        function prevStep() { goToStep(currentStep - 1); }
+
+        function validateCurrentStep() {
+            if (currentStep === 1) { if (!document.getElementById('clientName').value || !document.getElementById('clientPhone').value) { alert('Veuillez remplir le nom et le téléphone du client.'); return false; } }
+            if (currentStep === 2) { if (!document.getElementById('deviceType').value || !document.getElementById('deviceModel').value || !document.getElementById('deviceSerial').value || !document.getElementById('problemDesc').value) { alert('Veuillez remplir tous les champs obligatoires.'); return false; } }
+            return true;
+        }
+
+        function updateSummary() {
+            document.getElementById('summaryContent').innerHTML = `
+        <div class="summary-box"><h4>👤 Client</h4>
+            <p><strong>Nom:</strong> ${document.getElementById('clientName').value}</p>
+            <p><strong>Tél:</strong> ${document.getElementById('clientPhone').value}</p>
+            ${document.getElementById('clientEmail').value ? `<p><strong>Email:</strong> ${document.getElementById('clientEmail').value}</p>` : ''}
+            ${document.getElementById('clientAddress').value ? `<p><strong>Adresse:</strong> ${document.getElementById('clientAddress').value}</p>` : ''}
+        </div>
+        <div class="summary-box"><h4>📱 Appareil</h4>
+            <p><strong>Type:</strong> ${document.getElementById('deviceType').value}</p>
+            <p><strong>Modèle:</strong> ${document.getElementById('deviceModel').value}</p>
+            <p><strong>IMEI/Série:</strong> ${document.getElementById('deviceSerial').value}</p>
+            <p><strong>Problème:</strong> ${document.getElementById('problemDesc').value}</p>
+        </div>`;
+        }
+
+        function resetForm() {
+            editingId = null; currentStep = 1;
+            document.getElementById('repairForm').reset();
+            document.getElementById('serialImage').style.display = 'none';
+            clearSignature();
+            goToStep(1);
+        }
+
+        // ============ SIGNATURE ============
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let drawing = false, lx = 0, ly = 0;
+        function getCoords(e) { const r = canvas.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e; return { x: (t.clientX - r.left) * (canvas.width / r.width), y: (t.clientY - r.top) * (canvas.height / r.height) }; }
+        function startDraw(e) { drawing = true; const c = getCoords(e); lx = c.x; ly = c.y; e.preventDefault(); }
+        function doDraw(e) { if (!drawing) return; const c = getCoords(e); ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(c.x, c.y); ctx.stroke(); lx = c.x; ly = c.y; e.preventDefault(); }
+        function stopDraw() { drawing = false; }
+        canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', doDraw); canvas.addEventListener('mouseup', stopDraw); canvas.addEventListener('mouseout', stopDraw);
+        canvas.addEventListener('touchstart', startDraw); canvas.addEventListener('touchmove', doDraw); canvas.addEventListener('touchend', stopDraw);
+        function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function isSignatureEmpty() { const d = ctx.getImageData(0, 0, canvas.width, canvas.height).data; return !d.some(c => c !== 0); }
+
+        // ============ SERIAL CAPTURE ============
+        document.getElementById('serialCapture').addEventListener('change', function (e) {
+            const f = e.target.files[0]; if (!f) return;
+            const r = new FileReader(); r.onload = ev => { const img = document.getElementById('serialImage'); img.src = ev.target.result; img.style.display = 'block'; }; r.readAsDataURL(f);
+        });
+
+        // ============ FORM SUBMIT ============
+        document.getElementById('repairForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!document.getElementById('estimatedCost').value) { alert('Veuillez entrer le coût estimé.'); return; }
+            if (isSignatureEmpty()) { alert('Veuillez ajouter la signature du client.'); return; }
+            const serialImg = document.getElementById('serialImage');
+            const data = {
+                clientName: document.getElementById('clientName').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                deviceType: document.getElementById('deviceType').value,
+                deviceModel: document.getElementById('deviceModel').value,
+                deviceSerial: document.getElementById('deviceSerial').value,
+                serialImage: serialImg.style.display === 'block' ? serialImg.src : null,
+                problemDescription: document.getElementById('problemDesc').value,
+                estimatedCost: parseFloat(document.getElementById('estimatedCost').value),
+                signature: canvas.toDataURL()
+            };
+            let repair;
+            if (editingId) { db.update(editingId, data); repair = db.get(editingId); editingId = null; }
+            else { repair = db.add(data); }
+            resetForm(); showView('database'); updateStats();
+            generateDocument(repair.id, 'takeover');
+        });
+
+        // ============ DISPLAY REPAIRS ============
+        function displayRepairs(filtered) {
+            const repairs = filtered || db.getAll();
+            const container = document.getElementById('repairsList');
+            if (!repairs.length) { container.innerHTML = '<div class="no-results"><div class="icon">📋</div><p>Aucune réparation trouvée</p></div>'; return; }
+            container.innerHTML = repairs.map(r => {
+                const statusClass = r.status === 'En Attente' ? 'waiting' : r.status === 'En Cours' ? 'progress' : r.status === 'Terminée' ? 'done' : 'paid';
+                return `<div class="repair-card">
+            <div class="repair-card-header"><h3>${r.clientName} — ${r.deviceType}</h3><div><span class="repair-num">${r.repairNumber}</span><br><span class="badge badge-${statusClass}">${r.status}</span></div></div>
+            <div class="repair-card-info">
+                <p><strong>Modèle:</strong> ${r.deviceModel}</p><p><strong>IMEI/Série:</strong> ${r.deviceSerial}</p>
+                <p><strong>Tél:</strong> ${r.clientPhone}</p><p><strong>Coût:</strong> ${r.estimatedCost.toFixed(2)}€</p>
+                <p><strong>Problème:</strong> ${r.problemDescription}</p><p><strong>Date:</strong> ${new Date(r.createdAt).toLocaleDateString('fr-FR')}</p>
+            </div>
+            <div class="repair-actions">
+                <button class="btn btn-info" onclick="generateDocument(${r.id},'takeover')">📄 Prise en Charge</button>
+                <button class="btn btn-warning" onclick="editRepair(${r.id})">✏️ Modifier</button>
+                ${r.status === 'En Attente' ? `<button class="btn btn-primary" onclick="updateStatus(${r.id},'En Cours')">▶️ Démarrer</button>` : ''}
+                ${r.status === 'En Cours' ? `<button class="btn btn-success" onclick="updateStatus(${r.id},'Terminée')">✅ Terminer</button>` : ''}
+                ${r.status === 'Terminée' ? `<button class="btn btn-accent" onclick="openPayment(${r.id})">💰 Paiement</button>` : ''}
+                ${r.status === 'Terminée' || r.status === 'Payée' ? `<button class="btn btn-primary" onclick="generateDocument(${r.id},'invoice')">🧾 Facture</button>` : ''}
+                <button class="btn btn-danger" onclick="deleteRepair(${r.id})">🗑️</button>
+            </div>
+        </div>`;
+            }).join('');
+        }
+
+        // ============ SEARCH ============
+        function filterRepairs() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const model = document.getElementById('searchModel').value.toLowerCase();
+            const num = document.getElementById('searchNumber').value.toLowerCase();
+            const filtered = db.getAll().filter(r =>
+                (!name || r.clientName.toLowerCase().includes(name)) &&
+                (!model || r.deviceModel.toLowerCase().includes(model)) &&
+                (!num || r.repairNumber.toLowerCase().includes(num))
+            );
+            displayRepairs(filtered);
+        }
+
+        // ============ ACTIONS ============
+        function updateStatus(id, status) { db.update(id, { status }); displayRepairs(); updateStats(); }
+        function deleteRepair(id) { if (confirm('Supprimer cette réparation ?')) { db.delete(id); displayRepairs(); updateStats(); } }
+        function editRepair(id) {
+            const r = db.get(id); if (!r) return;
+            editingId = id; showView('form');
+            document.getElementById('clientName').value = r.clientName;
+            document.getElementById('clientPhone').value = r.clientPhone;
+            document.getElementById('clientEmail').value = r.clientEmail || '';
+            document.getElementById('clientAddress').value = r.clientAddress || '';
+            document.getElementById('deviceType').value = r.deviceType;
+            document.getElementById('deviceModel').value = r.deviceModel;
+            document.getElementById('deviceSerial').value = r.deviceSerial;
+            document.getElementById('problemDesc').value = r.problemDescription;
+            document.getElementById('estimatedCost').value = r.estimatedCost;
+            if (r.serialImage) { const img = document.getElementById('serialImage'); img.src = r.serialImage; img.style.display = 'block'; }
+            if (r.signature) { const sigImg = new Image(); sigImg.onload = () => { ctx.drawImage(sigImg, 0, 0); }; sigImg.src = r.signature; }
+            goToStep(1);
+        }
+
+        // ============ PAYMENT ============
+        let paymentRepairId = null, selectedPayment = null;
+        function openPayment(id) {
+            paymentRepairId = id; selectedPayment = null;
+            const r = db.get(id);
+            document.getElementById('paymentAmount').textContent = `Montant: ${r.estimatedCost.toFixed(2)}€ TTC`;
+            document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+            document.getElementById('confirmPayBtn').disabled = true;
+            document.getElementById('paymentModal').classList.add('active');
+        }
+        function selectPayment(method) {
+            selectedPayment = method;
+            document.querySelectorAll('.payment-option').forEach(o => o.classList.toggle('selected', o.dataset.method === method));
+            document.getElementById('confirmPayBtn').disabled = false;
+        }
+        function confirmPayment() {
+            if (!selectedPayment || !paymentRepairId) return;
+            db.update(paymentRepairId, { status: 'Payée', paidAt: new Date().toISOString(), paymentMethod: selectedPayment });
+            closePaymentModal(); displayRepairs(); updateStats();
+            generateDocument(paymentRepairId, 'invoice');
+        }
+        function closePaymentModal() { document.getElementById('paymentModal').classList.remove('active'); }
+
+        // ============ DOCUMENTS ============
+        let currentDocRepair = null;
+        function generateDocument(id, type) {
+            const r = db.get(id); if (!r) return;
+            currentDocRepair = r;
+            const date = type === 'invoice' && r.paidAt ? new Date(r.paidAt) : new Date(r.createdAt);
+            let html = '';
+            if (type === 'takeover') {
+                html = `<div class="doc-page">
+            <div class="doc-header">
+                <div class="doc-logo-section"><img src="mr-phone-67-logo.png" alt="Logo" onerror="this.style.display='none'"><div class="doc-company"><h2>Mr Phone 67</h2><p>Réparation Smartphones, PC & Consoles</p><p>📍 Strasbourg, France</p><p class="phone">📞 06 95 10 61 57</p><p>✉️ contact@mrphone67.fr</p><p><strong>SIRET:</strong> 520 275 264</p></div></div>
+                <div style="text-align:right"><p style="color:#666;font-size:0.8em"><strong>Date:</strong> ${date.toLocaleDateString('fr-FR')}</p><p style="color:#666;font-size:0.8em"><strong>Heure:</strong> ${date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p></div>
+            </div>
+            <div class="doc-title"><h1>PRISE EN CHARGE</h1><p class="doc-num">N° ${r.repairNumber}</p></div>
+            <div class="doc-info-grid">
+                <div class="doc-info-box"><h3>Informations Client</h3><p><strong>Nom:</strong> ${r.clientName}</p><p><strong>Tél:</strong> ${r.clientPhone}</p>${r.clientEmail ? `<p><strong>Email:</strong> ${r.clientEmail}</p>` : ''}${r.clientAddress ? `<p><strong>Adresse:</strong> ${r.clientAddress}</p>` : ''}</div>
+                <div class="doc-info-box"><h3>Informations Appareil</h3><p><strong>Type:</strong> ${r.deviceType}</p><p><strong>Modèle:</strong> ${r.deviceModel}</p><p><strong>IMEI/Série:</strong> ${r.deviceSerial}</p></div>
+            </div>
+            <table class="doc-table"><thead><tr><th>Description du Problème</th></tr></thead><tbody><tr><td style="padding:10px;line-height:1.5">${r.problemDescription}</td></tr></tbody></table>
+            <div class="doc-cost"><p>Estimation de la réparation:</p><p class="total">${r.estimatedCost.toFixed(2)}€ TTC</p></div>
+            <div class="doc-signatures">
+                <div class="doc-sig-box"><h4>Signature du Client</h4><p style="color:#666;font-size:0.72em;margin-bottom:6px">Je reconnais avoir déposé l'appareil décrit ci-dessus</p><img src="${r.signature}" alt="Signature"></div>
+                <div class="doc-sig-box"><h4>Signature du Réparateur</h4><div class="doc-sig-line"><p style="color:#666">Mr Phone 67</p></div></div>
+            </div>
+            <div class="doc-footer"><p><strong>Garantie:</strong> 3 mois sur les pièces | <strong>Délai récupération:</strong> 3 mois après notification | <strong>Contact:</strong> 06 95 10 61 57</p></div>
+        </div>`;
+            } else {
+                const ht = r.estimatedCost / 1.20, tva = r.estimatedCost - ht, invNum = 'FACT-' + r.repairNumber;
+                html = `<div class="doc-page">
+            <div class="doc-header">
+                <div class="doc-logo-section"><img src="mr-phone-67-logo.png" alt="Logo" onerror="this.style.display='none'"><div class="doc-company"><h2>Mr Phone 67</h2><p>Réparation Smartphones, PC & Consoles</p><p>📍 Strasbourg, France</p><p class="phone">📞 06 95 10 61 57</p><p>✉️ contact@mrphone67.fr</p><p><strong>SIRET:</strong> 520 275 264</p></div></div>
+                <div style="text-align:right"><p style="color:#666;font-size:0.8em"><strong>Date:</strong> ${date.toLocaleDateString('fr-FR')}</p><p style="color:var(--primary);font-weight:bold;font-size:0.9em">${invNum}</p></div>
+            </div>
+            <div class="doc-title"><h1>FACTURE</h1><p class="doc-num">${invNum}</p></div>
+            <div class="doc-info-grid">
+                <div class="doc-info-box"><h3>Client</h3><p><strong>${r.clientName}</strong></p>${r.clientAddress ? `<p>${r.clientAddress}</p>` : ''}<p>Tél: ${r.clientPhone}</p>${r.clientEmail ? `<p>Email: ${r.clientEmail}</p>` : ''}</div>
+                <div class="doc-info-box"><h3>Détails Réparation</h3><p><strong>N°:</strong> ${r.repairNumber}</p><p><strong>Date dépôt:</strong> ${new Date(r.createdAt).toLocaleDateString('fr-FR')}</p><p><strong>Appareil:</strong> ${r.deviceType}</p><p><strong>Modèle:</strong> ${r.deviceModel}</p><p><strong>IMEI/Série:</strong> ${r.deviceSerial}</p></div>
+            </div>
+            <table class="doc-table"><thead><tr><th>Description</th><th style="text-align:right;width:70px">HT</th><th style="text-align:right;width:70px">TVA 20%</th><th style="text-align:right;width:70px">TTC</th></tr></thead>
+            <tbody><tr><td><strong>Réparation ${r.deviceType}</strong><br><span style="font-size:0.85em">${r.problemDescription}</span></td><td style="text-align:right">${ht.toFixed(2)}€</td><td style="text-align:right">${tva.toFixed(2)}€</td><td style="text-align:right"><strong>${r.estimatedCost.toFixed(2)}€</strong></td></tr></tbody></table>
+            <div class="doc-cost">
+                <p>Total HT: ${ht.toFixed(2)}€</p><p>TVA (20%): ${tva.toFixed(2)}€</p>
+                <p class="total">${r.estimatedCost.toFixed(2)}€ TTC</p>
+                <p style="color:var(--success);font-weight:bold;margin-top:4px">✅ PAYÉE ${r.paymentMethod ? '(' + r.paymentMethod + ')' : ''}</p>
+            </div>
+            <div class="doc-signatures">
+                <div class="doc-sig-box"><h4>Signature du Client</h4><img src="${r.signature}" alt="Signature"><p style="margin-top:4px;color:#666;font-size:0.72em">${r.clientName}</p></div>
+                <div class="doc-sig-box"><h4>Cachet de l'Entreprise</h4><div class="doc-sig-line"><p style="color:#666">Mr Phone 67</p></div></div>
+            </div>
+            <div class="doc-footer"><p><strong>Garantie:</strong> 3 mois sur les pièces | <strong>Contact:</strong> 06 95 10 61 57 | Merci pour votre confiance !</p></div>
+        </div>`;
+            }
+            document.getElementById('documentContent').innerHTML = html;
+            document.getElementById('documentModal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('documentModal').classList.remove('active'); }
+
+        function sendEmail() {
+            if (!currentDocRepair) return;
+            const email = currentDocRepair.clientEmail || '';
+            const subject = encodeURIComponent('Mr Phone 67 - Document ' + currentDocRepair.repairNumber);
+            const body = encodeURIComponent('Bonjour ' + currentDocRepair.clientName + ',\n\nVeuillez trouver ci-joint votre document de prise en charge/facture pour la réparation N° ' + currentDocRepair.repairNumber + '.\n\nCordialement,\nMr Phone 67\n📞 06 95 10 61 57');
+            window.open('mailto:' + email + '?subject=' + subject + '&body=' + body);
+        }
+
+        // ============ STATS ============
+        function updateStats() {
+            const all = db.getAll();
+            document.getElementById('statTotal').textContent = all.length;
+            document.getElementById('statEnCours').textContent = all.filter(r => r.status === 'En Cours').length;
+            document.getElementById('statTerminees').textContent = all.filter(r => r.status === 'Terminée' || r.status === 'Payée').length;
+            document.getElementById('statCA').textContent = all.filter(r => r.status === 'Payée').reduce((s, r) => s + r.estimatedCost, 0).toFixed(2) + '€';
+        }
+
+        // ============ INIT ============
+        displayRepairs(); updateStats();
+        window.onclick = function (e) { if (e.target.classList.contains('modal')) { closeModal(); closePaymentModal(); } };
+
+        // ============ PWA SERVICE WORKER ============
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                console.log('Service Worker enregistré:', reg.scope);
+            }).catch(err => console.log('SW non enregistré (mode fichier local):', err));
+        }
+
+        // ============ PWA INSTALL PROMPT ============
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            if (document.getElementById('installBanner')) return;
+            const banner = document.createElement('div');
+            banner.id = 'installBanner';
+            banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;padding:16px 24px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;gap:16px;font-family:Inter,sans-serif;max-width:500px;width:90%;animation:fadeIn .5s ease';
+            banner.innerHTML = `
+                <div style="font-size:2em">📱</div>
+                <div style="flex:1">
+                    <div style="font-weight:700;margin-bottom:4px">Installer Mr Phone 67</div>
+                    <div style="font-size:0.85em;opacity:0.9">Ajoutez l'app sur votre écran d'accueil</div>
+                </div>
+                <button onclick="installPWA()" style="background:#10b981;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Installer</button>
+                <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:4px">&times;</button>
+            `;
+            document.body.appendChild(banner);
+        }
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(result => {
+                if (result.outcome === 'accepted') console.log('App installée !');
+                deferredPrompt = null;
+                const banner = document.getElementById('installBanner');
+                if (banner) banner.remove();
+            });
+        }
+    </script>
+</body>
+
+</html>
